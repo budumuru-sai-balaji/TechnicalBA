@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sai Balaji Budumuru | Technical Business Analyst</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- FontAwesome for Brand Icons (LinkedIn, GitHub, Jira, Confluence) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Base Variables & Typography */
+        :root {
+            --bg-deep: #050614;
+            --glass-bg: rgba(20, 22, 45, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.06);
+            --glass-hover: rgba(30, 35, 65, 0.6);
+            --neon-pink: #ec4899;
+            --neon-blue: #3b82f6;
+            --neon-purple: #8b5cf6;
+            --neon-teal: #2dd4bf;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-deep);
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        /* Ambient Space Glows */
+        .ambient-bg {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+            background: #050614;
+        }
+        
+        .glow-1 {
+            position: absolute;
+            top: -10%;
+            right: -5%;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.25) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            filter: blur(90px);
+        }
+
+        .glow-2 {
+            position: absolute;
+            bottom: -20%;
+            left: -10%;
+            width: 900px;
+            height: 900px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            filter: blur(120px);
+        }
+
+        .glow-3 {
+            position: absolute;
+            top: 40%;
+            left: 20%;
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, rgba(236, 72, 153, 0.15) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            filter: blur(100px);
+        }
+
+        /* Premium Glassmorphism Cards */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .glass-card:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            background: var(--glass-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+        }
+
+        /* Tool Cards */
+        .tool-card {
+            background: rgba(15, 17, 35, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+        }
+        .tool-card:hover {
+            background: rgba(30, 35, 65, 0.8);
+            border-color: rgba(255,255,255,0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px -5px rgba(0,0,0,0.4);
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+        
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Typography Accents */
+        .dot-accent { color: var(--neon-pink); }
+        .text-gradient {
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Project Image Gradients */
+        .proj-gradient-1 { background: linear-gradient(135deg, rgba(30,30,47,1) 0%, rgba(15,23,42,1) 100%); }
+        .proj-gradient-2 { background: linear-gradient(135deg, rgba(44,30,58,1) 0%, rgba(23,15,28,1) 100%); }
+        .proj-gradient-3 { background: linear-gradient(135deg, rgba(20,40,50,1) 0%, rgba(10,20,25,1) 100%); }
+    </style>
+</head>
+<body class="antialiased selection:bg-purple-500/30 selection:text-purple-200">
+
+    <!-- Ambient Space Background -->
+    <div class="ambient-bg">
+        <div class="glow-1"></div>
+        <div class="glow-2"></div>
+        <div class="glow-3"></div>
+        <!-- Subtle Grid Overlay -->
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAyKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50"></div>
+    </div>
+
+    <!-- Top Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 py-4 px-6 md:px-10 flex items-center justify-between backdrop-blur-xl bg-[#050614]/70 border-b border-white/5">
+        <!-- Logo & Name -->
+        <div class="flex items-center gap-4">
+            <div class="text-3xl font-black tracking-tighter text-white">
+                SB<span class="dot-accent">.</span>
+            </div>
+            <div class="hidden sm:block border-l border-white/10 pl-4">
+                <h1 class="text-base font-bold text-white leading-tight">Sai Balaji Budumuru</h1>
+                <p class="text-sm text-slate-400 font-medium">Technical Business Analyst</p>
+            </div>
+        </div>
+
+        <!-- Center Links -->
+        <div class="hidden md:flex items-center gap-8">
+            <a href="#" class="text-white font-semibold text-sm">Home</a>
+            <div class="relative group">
+                <a href="#work" class="text-slate-400 hover:text-white transition-colors font-medium text-sm">Work</a>
+            </div>
+            <a href="#timeline" class="text-slate-400 hover:text-white transition-colors font-medium text-sm">Timeline</a>
+            <a href="#certs" class="text-slate-400 hover:text-white transition-colors font-medium text-sm">Certifications</a>
+        </div>
+
+        <!-- Right Actions -->
+        <div class="flex items-center gap-4">
+            <a href="mailto:budumurusaibalaji13@gmail.com" class="hidden sm:flex items-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white text-sm font-semibold transition-all shadow-[0_0_20px_rgba(139,92,246,0.4)]">
+                <i data-lucide="mail" class="w-4 h-4"></i>
+                Hire Me
+            </a>
+            <a href="#" class="sm:hidden w-10 h-10 rounded-full flex items-center justify-center bg-white/10 border border-white/10 text-white">
+                <i data-lucide="menu" class="w-5 h-5"></i>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Dashboard Layout -->
+    <main class="pt-28 pb-16 px-6 md:px-10 max-w-[1800px] mx-auto min-h-screen flex flex-col xl:flex-row gap-10 xl:gap-14">
+        
+        <!-- ================= LEFT COLUMN (Fixed/Sticky Intro & Skills) ================= -->
+        <div class="w-full xl:w-[450px] shrink-0 flex flex-col gap-10 xl:sticky xl:top-32 xl:h-[calc(100vh-10rem)] overflow-y-auto hide-scrollbar pb-10">
+            
+            <!-- Hero Intro -->
+            <div>
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm font-medium text-slate-300 mb-6 backdrop-blur-md">
+                    <i data-lucide="sparkles" class="w-4 h-4 text-pink-400"></i>
+                    Bridging Code and Business Requirements.
+                </div>
+                
+                <h2 class="text-5xl lg:text-6xl font-black text-white leading-[1.1] mb-6 tracking-tight">
+                    Selected Work & <br> Expertise<span class="dot-accent">.</span>
+                </h2>
+                
+                <!-- UPDATED SUMMARY -->
+                <p class="text-slate-300 text-base leading-relaxed mb-8">
+                    Across 2.5 years as a Software Developer delivering compliance-critical aviation safety and real-time monitoring systems, my strongest impact came from the Business Analysis work I owned—requirements elicitation, workflow mapping, and SQL-based Root Cause Analysis. I combine this developer-level technical depth with rigorous functional analysis to bridge the gap between business needs and engineering delivery as a <strong class="text-white font-semibold">Technical Business Analyst</strong>.
+                </p>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap gap-4">
+                    <a href="https://docs.google.com/document/d/1F9fzkkti_NHoWGDBdWh4Pq_2aOQ1OlVs/edit?usp=sharing&ouid=106054679563361681479&rtpof=true&sd=true" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/20 text-white font-semibold transition-all">
+                        <i data-lucide="external-link" class="w-4 h-4"></i>
+                        View Resume
+                    </a>
+                    <div class="flex gap-3">
+                        <a href="https://linkedin.com/in/sai-balaji-budumuru-433031213/" target="_blank" class="w-12 h-12 rounded-xl bg-white/5 border border-white/10 hover:bg-[#0077b5] flex items-center justify-center text-slate-300 hover:text-white transition-all">
+                            <i class="fa-brands fa-linkedin text-xl"></i>
+                        </a>
+                        <a href="https://github.com/budumuru-sai-balaji" target="_blank" class="w-12 h-12 rounded-xl bg-white/5 border border-white/10 hover:bg-white/20 flex items-center justify-center text-slate-300 hover:text-white transition-all">
+                            <i class="fa-brands fa-github text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Skills & Tools Section -->
+            <div class="pt-6 border-t border-white/10">
+                <div class="flex items-center gap-3 mb-6">
+                    <span class="w-3 h-3 rounded-full bg-pink-500 shadow-[0_0_12px_rgba(236,72,153,0.8)]"></span>
+                    <h3 class="text-white text-xl font-bold tracking-wide">Skills & Tools</h3>
+                </div>
+                <p class="text-base text-slate-400 mb-8">
+                    The technologies and methodologies I use to translate business needs into technical reality.
+                </p>
+
+                <!-- Tools Grid -->
+                <div class="mb-4 text-sm font-bold text-slate-500 uppercase tracking-widest">Tools I Use</div>
+                <div class="grid grid-cols-4 gap-4 mb-10">
+                    <div class="tool-card aspect-square flex flex-col items-center justify-center gap-2 group">
+                        <i data-lucide="database" class="w-8 h-8 text-blue-400 group-hover:scale-110 transition-transform"></i>
+                        <span class="text-xs font-semibold text-slate-300">SQL</span>
+                    </div>
+                    <div class="tool-card aspect-square flex flex-col items-center justify-center gap-2 group">
+                        <i class="fa-brands fa-jira text-3xl text-blue-500 group-hover:scale-110 transition-transform"></i>
+                        <span class="text-xs font-semibold text-slate-300">Jira</span>
+                    </div>
+                    <div class="tool-card aspect-square flex flex-col items-center justify-center gap-2 group">
+                        <i class="fa-brands fa-confluence text-3xl text-blue-300 group-hover:scale-110 transition-transform"></i>
+                        <span class="text-xs font-semibold text-slate-300">Confluence</span>
+                    </div>
+                    <div class="tool-card aspect-square flex flex-col items-center justify-center gap-2 group">
+                        <!-- Using a generic flowchart icon for Lucidchart since it lacks a specific FontAwesome brand logo -->
+                        <i data-lucide="git-merge" class="w-8 h-8 text-orange-400 group-hover:scale-110 transition-transform"></i>
+                        <span class="text-[11px] font-semibold text-slate-300">Lucidchart</span>
+                    </div>
+                </div>
+
+                <!-- Core Skills Grid -->
+                <div class="mb-4 text-sm font-bold text-slate-500 uppercase tracking-widest">Core Capabilities</div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="glass-card p-5 flex flex-col gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-400">
+                            <i data-lucide="list-checks" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white text-base font-bold mb-1">Requirements</h4>
+                            <p class="text-sm text-slate-400">Elicitation, BRD, FRD, SRS, PRD, User Stories</p>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card p-5 flex flex-col gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+                            <i data-lucide="workflow" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white text-base font-bold mb-1">Process Mapping</h4>
+                            <p class="text-sm text-slate-400">BPMN, Gap Analysis, User Journeys</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-5 flex flex-col gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+                            <i data-lucide="table-properties" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white text-base font-bold mb-1">Data & Tech</h4>
+                            <p class="text-sm text-slate-400">Relational Modeling, SQL RCA, APIs, .NET</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-5 flex flex-col gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                            <i data-lucide="shield-check" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white text-base font-bold mb-1">Governance</h4>
+                            <p class="text-sm text-slate-400">RBAC, Audit Trails, UAT Design, Scope Control</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Removed the bouncing scroll arrow from here -->
+            
+        </div>
+
+        <!-- ================= RIGHT COLUMN (Scrollable Content) ================= -->
+        <div class="flex-1 flex flex-col gap-12 min-w-0">
+            
+            <!-- Projects Grid -->
+            <div id="work" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                
+                <!-- Card 1: Northstar -->
+                <div class="glass-card flex flex-col p-3 group cursor-default">
+                    <div class="relative h-64 rounded-2xl overflow-hidden proj-gradient-1 flex items-center justify-center">
+                        <div class="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9IiNmZmYiLz48L3N2Zz4=')] mix-blend-overlay"></div>
+                        
+                        <!-- Badges -->
+                        <div class="absolute top-4 left-4 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md border border-white/20 flex items-center justify-center text-sm font-bold text-white z-10">01</div>
+                        <div class="absolute top-4 right-4 px-4 py-2 rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-xs font-semibold text-slate-200 z-10">Fintech / Loan</div>
+                        
+                        <div class="relative z-10 text-center transform group-hover:scale-105 transition-transform duration-500">
+                            <i data-lucide="landmark" class="w-16 h-16 text-blue-300 mx-auto mb-4 opacity-90 drop-shadow-lg"></i>
+                            <h3 class="text-3xl font-black tracking-widest text-white uppercase drop-shadow-lg">Northstar</h3>
+                        </div>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col">
+                        <h4 class="text-white font-bold text-xl mb-3">Retail Loan Origination Workflow</h4>
+                        <p class="text-base text-slate-300 leading-relaxed mb-6 flex-1">
+                            Mapped end-to-end loan origination flow from intake to credit decision. Defined 14+ business rules including score bands and amount thresholds. Specified 4-role RBAC with segregation of duties and audit event schemas.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mt-auto">
+                            <span class="px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs text-slate-300 font-medium">Functional Spec</span>
+                            <span class="px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs text-slate-300 font-medium">Business Rules</span>
+                            <span class="px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs text-slate-300 font-medium">RBAC</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2: VizagAlert -->
+                <div class="glass-card flex flex-col p-3 group cursor-default">
+                    <div class="relative h-64 rounded-2xl overflow-hidden proj-gradient-2 flex items-center justify-center">
+                        <div class="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTAgMGwyMCAyME0yMCAwbC0yMCAyMCIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjAuNSIgZmlsbD0ibm9uZSIvPjwvc3ZnPg==')] mix-blend-overlay"></div>
+                        
+                        <div class="absolute top-4 left-4 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md border border-white/20 flex items-center justify-center text-sm font-bold text-white z-10">02</div>
+                        <div class="absolute top-4 right-4 px-4 py-2 rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-xs font-semibold text-slate-200 z-10">Civic Platform</div>
+                        
+                        <div class="relative z-10 text-center transform group-hover:scale-105 transition-transform duration-500">
+                            <i data-lucide="map-pin" class="w-16 h-16 text-purple-300 mx-auto mb-4 opacity-90 drop-shadow-lg"></i>
+                            <h3 class="text-3xl font-black tracking-widest text-white uppercase drop-shadow-lg">VizagAlert</h3>
+                        </div>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col">
+                        <h4 class="text-white font-bold text-xl mb-3">Multi-Department Complaint Routing</h4>
+                        <p class="text-base text-slate-300 leading-relaxed mb-6 flex-1">
+                            Scoped citizen complaint tracking across 6 municipal departments. Mapped routing flow including GPS/UTC metadata capture. Produced full BRD, SRS, BPMN models, and user stories.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mt-auto">
+                            <span class="px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs text-slate-300 font-medium">BRD & SRS</span>
+                            <span class="px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs text-slate-300 font-medium">BPMN Models</span>
+                            <span class="px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs text-slate-300 font-medium">User Stories</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3: LUMP -->
+                <div class="glass-card flex flex-col p-3 group md:col-span-2 lg:col-span-2 cursor-default">
+                    <div class="relative h-48 md:h-56 rounded-2xl overflow-hidden proj-gradient-3 flex items-center justify-center">
+                        <div class="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTAgMTBoNDBNMTAgMHY0MCIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiLz48L3N2Zz4=')] mix-blend-overlay"></div>
+                        
+                        <div class="absolute top-4 left-4 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md border border-white/20 flex items-center justify-center text-sm font-bold text-white z-10">03</div>
+                        <div class="absolute top-4 right-4 px-4 py-2 rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-xs font-semibold text-slate-200 z-10">EdTech / AI</div>
+                        
+                        <div class="relative z-10 text-center transform group-hover:scale-105 transition-transform duration-500">
+                            <i data-lucide="brain-circuit" class="w-16 h-16 text-cyan-300 mx-auto mb-4 opacity-90 drop-shadow-lg"></i>
+                            <h3 class="text-3xl font-black tracking-widest text-white uppercase drop-shadow-lg">L.U.M.P</h3>
+                        </div>
+                    </div>
+                    <div class="p-6 flex flex-col md:flex-row gap-6">
+                        <div class="flex-1">
+                            <h4 class="text-white font-bold text-xl mb-3">AI-Powered Upskilling Platform</h4>
+                            <p class="text-base text-slate-300 leading-relaxed">
+                                Owned the concept from ideation to working prototype. Defined 12 distinct modules with both functional and non-functional requirements (Roadmap, NoteHub). Produced comprehensive PRD, Data Models, and UI Flow specifications.
+                            </p>
+                        </div>
+                        <div class="md:w-1/3 flex flex-wrap content-start gap-2">
+                            <span class="px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs text-slate-300 font-medium">PRD</span>
+                            <span class="px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs text-slate-300 font-medium">Data Modeling</span>
+                            <span class="px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs text-slate-300 font-medium">UI Flow Specs</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Experience Timeline -->
+            <div id="timeline" class="glass-card p-8 md:p-10">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="w-3 h-3 rounded-full bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.8)]"></span>
+                    <h3 class="text-white text-2xl font-bold tracking-wide">Experience Timeline</h3>
+                </div>
+                <p class="text-base text-slate-400 mb-10">My journey delivering enterprise value through rigorous business analysis.</p>
+
+                <div class="relative">
+                    <!-- Vertical Line -->
+                    <div class="absolute left-[70px] md:left-[90px] top-6 bottom-6 w-px bg-white/10"></div>
+                    
+                    <div class="space-y-10">
+                        
+                        <!-- Timeline Item 1 -->
+                        <div class="relative flex items-start gap-6 group">
+                            <div class="w-16 md:w-20 shrink-0 text-right pt-4">
+                                <span class="text-base font-black text-purple-400">2025</span>
+                            </div>
+                            <div class="absolute left-[65px] md:left-[85px] top-[22px] w-3 h-3 rounded-full bg-bg-deep border-2 border-purple-500 group-hover:bg-purple-500 shadow-[0_0_15px_rgba(168,85,247,0.5)] transition-colors z-10"></div>
+                            <div class="flex-1 bg-white/5 border border-white/5 rounded-2xl p-6 group-hover:border-purple-500/40 transition-colors">
+                                <div class="flex flex-col md:flex-row md:items-center justify-between mb-3 gap-2">
+                                    <h4 class="text-white font-bold text-xl">Software Developer <span class="text-purple-300 text-sm font-medium ml-2">(BA & Product Delivery)</span></h4>
+                                    <span class="text-sm font-semibold text-slate-300 bg-white/10 px-3 py-1 rounded-full">Prospecta Tech</span>
+                                </div>
+                                <p class="text-sm text-purple-200 mb-4 font-medium">Domain: Aviation Safety Management Systems (AviatorSMS)</p>
+                                <ul class="space-y-3 text-base text-slate-300 list-none">
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-purple-400 shrink-0"></i> Worked with Product Owners to clarify requirements and resolve edge-case ambiguities before sprint planning, reducing mid-sprint rework.</li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-purple-400 shrink-0"></i> Designed user journeys and data workflows for the Hazard Identification and Risk Assessment (HIRA) module, covering multi-level approval routing.</li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-purple-400 shrink-0"></i> Defined compliance logging and RBAC across 3 airside permit validation systems to deliver end-to-end regulatory traceability.</li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-purple-400 shrink-0"></i> Challenged enhancement requests conflicting with real-time airport operations, producing impact analyses to negotiate scope and protect velocity.</li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-purple-400 shrink-0"></i> Performed SQL-based Root Cause Analysis (RCA) on recurring UAT and production tickets, identifying requirement gaps behind defects.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Timeline Item 2 -->
+                        <div class="relative flex items-start gap-6 group">
+                            <div class="w-16 md:w-20 shrink-0 text-right pt-4">
+                                <span class="text-base font-black text-blue-400">2023</span>
+                            </div>
+                            <div class="absolute left-[65px] md:left-[85px] top-[22px] w-3 h-3 rounded-full bg-bg-deep border-2 border-blue-500 group-hover:bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)] transition-colors z-10"></div>
+                            <div class="flex-1 bg-white/5 border border-white/5 rounded-2xl p-6 group-hover:border-blue-500/40 transition-colors">
+                                <div class="flex flex-col md:flex-row md:items-center justify-between mb-3 gap-2">
+                                    <h4 class="text-white font-bold text-xl">Software Developer <span class="text-blue-300 text-sm font-medium ml-2">(BA Responsibilities)</span></h4>
+                                    <span class="text-sm font-semibold text-slate-300 bg-white/10 px-3 py-1 rounded-full">Areca Embedded</span>
+                                </div>
+                                <p class="text-sm text-blue-200 mb-4 font-medium">Domain: Real-Time Monitoring & Alerting</p>
+                                <ul class="space-y-3 text-base text-slate-300 list-none">
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-blue-400 shrink-0"></i> Delivered an automated water-level monitoring system as the single point of contact for customer requirements, wireframes, and calculations.</li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-blue-400 shrink-0"></i> Designed automated alerting logic that replaced manual inspection with real-time alerts.</li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-blue-400 shrink-0"></i> Secured design sign-offs through weekly reviews and live demos while tightly holding project scope.</li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-blue-400 shrink-0"></i> Built relational schemas and data dictionaries for compliance-ready tracking and reporting.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Timeline Item 3 (Education) -->
+                        <div class="relative flex items-start gap-6 group">
+                            <div class="w-16 md:w-20 shrink-0 text-right pt-2">
+                                <span class="text-base font-black text-pink-400">2018</span>
+                            </div>
+                            <div class="absolute left-[65px] md:left-[85px] top-[14px] w-3 h-3 rounded-full bg-bg-deep border-2 border-pink-500 group-hover:bg-pink-500 shadow-[0_0_15px_rgba(236,72,153,0.5)] transition-colors z-10"></div>
+                            <div class="flex-1 p-2">
+                                <h4 class="text-slate-200 font-bold text-lg mb-1">B.Tech, Electrical & Electronics Engineering</h4>
+                                <p class="text-base text-slate-400">Raghu Engineering College (2018 - 2022)</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Certifications Section -->
+            <div id="certs" class="glass-card p-8 md:p-10">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="w-3 h-3 rounded-full bg-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.8)]"></span>
+                    <h3 class="text-white text-2xl font-bold tracking-wide">Key Certifications</h3>
+                </div>
+                <p class="text-base text-slate-400 mb-8">Verified credentials demonstrating expertise in modern Business Analysis practices.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Cert 1 -->
+                    <div class="p-4 rounded-xl bg-white/5 border border-white/10 flex gap-4 items-center hover:bg-white/10 transition-colors">
+                        <div class="w-10 h-10 rounded-lg bg-[#0077b5]/20 text-[#0077b5] flex items-center justify-center shrink-0">
+                            <i class="fa-brands fa-linkedin text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white text-sm font-bold">Agile Project Management with Jira Cloud</h4>
+                            <p class="text-xs text-slate-400 mt-1">LinkedIn • Issued Sep 2026</p>
+                        </div>
+                    </div>
+                    <!-- Cert 2 -->
+                    <div class="p-4 rounded-xl bg-white/5 border border-white/10 flex gap-4 items-center hover:bg-white/10 transition-colors">
+                        <div class="w-10 h-10 rounded-lg bg-[#0077b5]/20 text-[#0077b5] flex items-center justify-center shrink-0">
+                            <i class="fa-brands fa-linkedin text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white text-sm font-bold">Requirements Elicitation for Business Analysis</h4>
+                            <p class="text-xs text-slate-400 mt-1">LinkedIn • Issued Sep 2026</p>
+                        </div>
+                    </div>
+                    <!-- Cert 3 -->
+                    <div class="p-4 rounded-xl bg-white/5 border border-white/10 flex gap-4 items-center hover:bg-white/10 transition-colors">
+                        <div class="w-10 h-10 rounded-lg bg-[#0077b5]/20 text-[#0077b5] flex items-center justify-center shrink-0">
+                            <i class="fa-brands fa-linkedin text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white text-sm font-bold">Agile Business Analysis</h4>
+                            <p class="text-xs text-slate-400 mt-1">LinkedIn • Issued Sep 2026</p>
+                        </div>
+                    </div>
+                    <!-- Cert 4 -->
+                    <div class="p-4 rounded-xl bg-white/5 border border-white/10 flex gap-4 items-center hover:bg-white/10 transition-colors">
+                        <div class="w-10 h-10 rounded-lg bg-[#0077b5]/20 text-[#0077b5] flex items-center justify-center shrink-0">
+                            <i class="fa-brands fa-linkedin text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white text-sm font-bold">Root Cause Analysis (RCA)</h4>
+                            <p class="text-xs text-slate-400 mt-1">LinkedIn • Issued Sep 2026</p>
+                        </div>
+                    </div>
+                    <!-- Cert 5 -->
+                    <div class="p-4 rounded-xl bg-white/5 border border-white/10 flex gap-4 items-center hover:bg-white/10 transition-colors">
+                        <div class="w-10 h-10 rounded-lg bg-green-500/20 text-green-400 flex items-center justify-center shrink-0">
+                            <i data-lucide="terminal" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white text-sm font-bold">SQL (Intermediate) Certificate</h4>
+                            <p class="text-xs text-slate-400 mt-1">HackerRank</p>
+                        </div>
+                    </div>
+                    <!-- Cert 6 -->
+                    <div class="p-4 rounded-xl bg-white/5 border border-white/10 flex gap-4 items-center hover:bg-white/10 transition-colors">
+                        <div class="w-10 h-10 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center shrink-0">
+                            <i data-lucide="cloud" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white text-sm font-bold">OCI Generative AI Professional</h4>
+                            <p class="text-xs text-slate-400 mt-1">Oracle • Issued Sep 2025</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Call To Action -->
+            <div class="glass-card p-10 flex flex-col items-center justify-center text-center relative overflow-hidden group border border-purple-500/30">
+                <div class="absolute inset-0 bg-gradient-to-br from-purple-600/10 to-blue-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                
+                <h3 class="text-white font-black text-3xl mb-4 relative z-10">
+                    Let's Build Something<br>Extraordinary<span class="dot-accent">.</span>
+                </h3>
+                
+                <p class="text-base text-slate-300 mb-8 relative z-10 max-w-md mx-auto">
+                    Available immediately for Technical Business Analyst roles. Open to relocation (Bengaluru, Hyderabad, Chennai). Let's bring clarity and structure to your next project.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-4 relative z-10">
+                    <a href="mailto:budumurusaibalaji13@gmail.com" class="flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold transition-all shadow-[0_0_20px_rgba(139,92,246,0.4)]">
+                        <i data-lucide="mail" class="w-5 h-5"></i>
+                        Email Me
+                    </a>
+                    <a href="tel:+916304084803" class="flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-white/10 hover:bg-white/15 border border-white/20 text-white font-bold transition-all">
+                        <i data-lucide="phone" class="w-5 h-5"></i>
+                        +91 63040 84803
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>
