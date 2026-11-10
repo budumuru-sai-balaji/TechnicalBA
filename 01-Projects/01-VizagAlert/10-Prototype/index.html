@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VizagAlert - Civic Reporting</title>
+    
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Alpine.js for Angular-like state management in vanilla HTML -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        .animate-fade-in { animation: fadeIn 0.2s ease-out; }
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(5px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        /* Prevents flickering before Alpine loads */
+        [x-cloak] { display: none !important; }
+    </style>
+
+    <!-- Firebase Modular Imports -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getAuth, signInAnonymously, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, signInWithCustomToken } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+        
+        // Expose to window so Alpine can use them
+        window.fbDeps = { initializeApp, getAuth, signInAnonymously, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, signInWithCustomToken, getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, setDoc, getDoc };
+    </script>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-900 font-sans pb-20" x-data="appData()" x-init="initApp()" x-cloak>
+    
+    <!-- Header -->
+    <header class="bg-blue-900 text-white p-4 shadow-md sticky top-0 z-50 flex justify-between items-center">
+        <div class="flex items-center gap-2 cursor-pointer" @click="navigate('landing')">
+            <span class="text-2xl">🚨</span>
+            <h1 class="text-xl font-bold tracking-tight">VizagAlert</h1>
+            <template x-if="currentUser">
+                <span class="text-[10px] bg-blue-700 px-2 py-0.5 rounded-full uppercase ml-2 border border-blue-500" x-text="currentUser.role"></span>
+            </template>
+        </div>
+        <template x-if="currentUser">
+            <button @click="logoutUser()" class="text-sm font-medium hover:text-red-300 transition">Logout</button>
+        </template>
+        <template x-if="!currentUser">
+            <button @click="openLogin('official')" class="text-sm font-medium hover:text-blue-200 transition">Official Login</button>
+        </template>
+    </header>
+
+    <main class="max-w-md mx-auto p-4 mt-4">
+        
+        <!-- 1. LANDING PAGE -->
+        <div x-show="currentView === 'landing'" class="space-y-6 animate-fade-in">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 text-center">
+                <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">📸</div>
+                <h2 class="text-2xl font-bold mb-2">See an Issue? Report it.</h2>
+                <p class="text-slate-600 mb-6 text-sm">Report civic issues directly to the correct department with live photo and GPS evidence.</p>
+                <button @click="startGuestReport()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl shadow-md transition transform active:scale-95 text-lg">
+                    Report Issue (Guest)
+                </button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <button @click="openLogin('citizen')" class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 text-center hover:border-blue-300 transition active:scale-95">
+                    <span class="text-2xl block mb-2">👤</span>
+                    <span class="font-bold text-sm text-slate-800">Citizen Portal</span>
+                </button>
+                <button @click="openLogin('official')" class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 text-center hover:border-blue-300 transition active:scale-95">
+                    <span class="text-2xl block mb-2">🏛️</span>
+                    <span class="font-bold text-sm text-slate-800">Official Login</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 2. LOGIN / REGISTER -->
+        <div x-show="currentView === 'login'" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 animate-fade-in">
+            <h2 class="text-2xl font-bold mb-4" x-text="loginType === 'citizen' ? 'Citizen Portal' : 'Official Access'"></h2>
+            
+            <div class="flex mb-6 bg-slate-100 p-1 rounded-lg">
+                <button @click="authMode = 'login'; authError = ''" :class="{'bg-white shadow-sm': authMode === 'login'}" class="flex-1 py-2 text-sm font-bold rounded-md transition">Sign In</button>
+                <button @click="authMode = 'register'; authError = ''" :class="{'bg-white shadow-sm': authMode === 'register'}" class="flex-1 py-2 text-sm font-bold rounded-md transition">Register</button>
+            </div>
+
+            <template x-if="authError">
+                <div class="bg-red-50 text-red-600 border border-red-200 p-3 rounded-lg text-sm mb-4 font-bold" x-text="authError"></div>
+            </template>
+
+            <div class="space-y-4">
+                <template x-if="loginType === 'official'">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Access Role</label>
+                        <select x-model="selectedLoginRole" class="w-full border border-slate-300 rounded-lg p-3 bg-white outline-none focus:ring-2 focus:ring-blue-500 font-medium">
+                            <option value="admin">Department Official</option>
+                            <option value="superadmin">System Super Admin</option>
+                        </select>
+                        
+                        <template x-if="selectedLoginRole === 'admin'">
+                            <div class="animate-fade-in mt-4">
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Select Department</label>
+                                <select x-model="selectedDeptId" class="w-full border border-slate-300 rounded-lg p-3 bg-white outline-none focus:ring-2 focus:ring-blue-500 font-medium">
+                                    <template x-for="dept in departments" :key="dept.id">
+                                        <option :value="dept.id" x-text="dept.name"></option>
+                                    </template>
+                                </select>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+
+                <div x-show="authMode === 'register'" class="animate-fade-in">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
+                    <input x-model="authForm.name" type="text" class="w-full border border-slate-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your full name">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">
+                        <span x-text="loginType === 'citizen' ? 'Gov ID Proof (Aadhaar / Voter ID)' : (selectedLoginRole === 'admin' ? 'Unique Employee ID' : 'Root Super Admin ID')"></span>
+                    </label>
+                    <input x-model="authForm.idVal" type="text" class="w-full border border-slate-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 font-mono uppercase" placeholder="Enter Unique ID">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Secure Password</label>
+                    <input x-model="authForm.pass" type="password" class="w-full border border-slate-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500" placeholder="••••••••">
+                </div>
+                
+                <button :disabled="isAuthenticating" @click="processAuth(authMode === 'register')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition mt-4 disabled:opacity-50" x-text="isAuthenticating ? 'Processing...' : (authMode === 'register' ? 'Register Account' : 'Secure Login')"></button>
+                <button :disabled="isAuthenticating" @click="navigate('landing')" class="w-full text-slate-500 py-2 mt-2">Cancel</button>
+            </div>
+        </div>
+
+        <!-- 3. ROLE-BASED DASHBOARDS -->
+        <div x-show="currentView === 'dashboard'">
+            
+            <!-- 3A. CITIZEN -->
+            <template x-if="currentUser?.role === 'citizen'">
+                <div class="animate-fade-in space-y-6">
+                    <h2 class="text-2xl font-bold flex items-center justify-between">
+                        My Reports
+                        <span class="text-xs bg-slate-200 text-slate-700 px-2 py-1 rounded-full font-mono" x-text="'ID: ' + currentUser.govId"></span>
+                    </h2>
+                    <button @click="startGuestReport()" class="w-full border-2 border-dashed border-blue-300 text-blue-700 font-bold py-4 rounded-xl hover:bg-blue-50 transition">
+                        + File New Report
+                    </button>
+                    <div class="space-y-3">
+                        <template x-if="citizenIssues.length === 0">
+                            <p class="text-slate-500 text-sm text-center py-4">No reports filed under this ID.</p>
+                        </template>
+                        <template x-for="issue in citizenIssues" :key="issue.id">
+                            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex gap-4 items-center">
+                                <img :src="issue.photoUrl" class="w-16 h-16 rounded-lg object-cover bg-slate-200">
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-start">
+                                        <span class="font-bold text-sm" x-text="getDeptName(issue.deptId)"></span>
+                                        <span :class="getStatusClass(issue.status)" class="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase border" x-text="issue.status"></span>
+                                    </div>
+                                    <p class="text-xs text-slate-800 mt-1 line-clamp-2 font-medium" x-text="issue.desc"></p>
+                                    <p class="text-[10px] text-slate-400 mt-1" x-text="formatDate(issue.timestamp, 'short')"></p>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </template>
+
+            <!-- 3B. ADMIN -->
+            <template x-if="currentUser?.role === 'admin'">
+                <div class="animate-fade-in space-y-6">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h2 class="text-xl font-bold flex items-center gap-2">
+                                <span class="w-3 h-3 bg-red-500 rounded-full animate-pulse inline-block"></span> HQ: <span x-text="getDeptName(currentUser.deptId)"></span>
+                            </h2>
+                            <p class="text-xs text-slate-500 mt-1">Live Ticket Management System</p>
+                        </div>
+                        <span class="text-[10px] bg-blue-100 text-blue-800 px-2 py-1 rounded font-bold font-mono border border-blue-200" x-text="'EMP ID: ' + currentUser.govId"></span>
+                    </div>
+
+                    <div class="flex gap-2 p-1 bg-slate-200 rounded-lg">
+                        <button @click="adminTab = 'tickets'" :class="{'bg-white shadow-sm': adminTab === 'tickets'}" class="flex-1 py-1.5 text-sm font-bold rounded-md transition">Live Tickets</button>
+                        <button @click="adminTab = 'team'" :class="{'bg-white shadow-sm': adminTab === 'team'}" class="flex-1 py-1.5 text-sm font-bold rounded-md transition">Team Mgt</button>
+                    </div>
+
+                    <!-- Tickets Tab -->
+                    <template x-if="adminTab === 'tickets'">
+                        <div class="space-y-4">
+                            <template x-if="adminIssues.length === 0"><p class="text-slate-500 text-sm text-center py-4">No active tickets.</p></template>
+                            <template x-for="issue in adminIssues" :key="issue.id">
+                                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                                    <div class="flex gap-4">
+                                        <img :src="issue.photoUrl" class="w-20 h-24 rounded-lg object-cover bg-slate-200 border border-slate-100">
+                                        <div class="flex-1">
+                                            <div class="flex justify-between items-start mb-1">
+                                                <span class="font-mono text-xs font-bold text-slate-500" x-text="issue.id"></span>
+                                                <span class="text-[10px] text-slate-400" x-text="formatDate(issue.timestamp, 'shortTime')"></span>
+                                            </div>
+                                            <p class="text-sm text-slate-800 font-medium mb-3" x-text="issue.desc"></p>
+                                            <div class="flex flex-col gap-1">
+                                                <label class="text-[10px] font-bold text-slate-500 uppercase">Current Status</label>
+                                                <select :value="issue.status" @change="updateIssueStatus(issue.id, $event.target.value)" :class="getStatusClass(issue.status)" class="w-full border rounded-lg p-2 text-xs font-bold outline-none cursor-pointer">
+                                                    <option value="Request">🔴 Request (Unassigned)</option>
+                                                    <option value="Active">🔵 Active (Working on it)</option>
+                                                    <option value="Hold">🟠 Hold (Temporarily stopped)</option>
+                                                    <option value="Resolved">🟢 Resolved (Completed)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <!-- Team Tab -->
+                    <template x-if="adminTab === 'team'">
+                        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-4">
+                            <h3 class="font-bold text-slate-800 border-b pb-2">Current Team Members</h3>
+                            <div class="space-y-2 mb-6">
+                                <template x-for="member in myTeamMembers" :key="member.id">
+                                    <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold text-xs uppercase" x-text="member.name.charAt(0)"></div>
+                                            <div>
+                                                <p class="text-sm font-bold text-slate-800">
+                                                    <span x-text="member.name"></span> 
+                                                    <span class="text-xs text-blue-600 font-normal" x-text="'(' + (member.designation || 'Alert Handler') + ')'"></span> 
+                                                    <span x-text="member.govId === currentUser?.govId ? '(You)' : ''"></span>
+                                                </p>
+                                                <p class="text-[10px] text-slate-500 font-mono">EMP ID: <span x-text="member.govId"></span> <template x-if="member.contactNumber"><span>| 📞 <span x-text="member.contactNumber"></span></span></template></p>
+                                            </div>
+                                        </div>
+                                        <span class="text-[10px] bg-green-50 text-green-700 px-2 py-1 rounded border border-green-200 font-bold">Active</span>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <h3 class="font-bold text-slate-800 border-b pb-2">Request Access Changes</h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Action</label>
+                                    <select x-model="reqActionType" class="w-full border border-slate-300 rounded-lg p-2 text-sm outline-none bg-white">
+                                        <option value="Add Member">Request New Member Slot</option>
+                                        <option value="Delete Member">Revoke Member Access</option>
+                                    </select>
+                                </div>
+                                <template x-if="reqActionType === 'Delete Member'">
+                                    <div class="animate-fade-in">
+                                        <label class="block text-xs font-bold text-slate-700 mb-1">Select Member to Remove</label>
+                                        <select x-model="reqDeleteTarget" class="w-full border border-slate-300 rounded-lg p-2 text-sm outline-none bg-white">
+                                            <option value="" disabled selected>-- Select a member --</option>
+                                            <template x-for="member in myTeamMembers" :key="member.id">
+                                                <option :value="member.name + ' (' + member.govId + ')'" x-text="member.name + (member.govId === currentUser?.govId ? ' (You)' : '')"></option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                </template>
+                                <button @click="submitTeamReq()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 rounded-xl text-sm transition">Submit Request to Super Admin</button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+            <!-- 3C. SUPER ADMIN -->
+            <template x-if="currentUser?.role === 'superadmin'">
+                <div class="animate-fade-in space-y-6">
+                    <div class="flex justify-between items-start">
+                        <h2 class="text-2xl font-bold flex items-center gap-2 text-indigo-900"><span>🛡️</span> System Admin Root</h2>
+                        <span class="text-[10px] bg-indigo-100 text-indigo-800 px-2 py-1 rounded font-bold font-mono border border-indigo-200" x-text="'ROOT: ' + currentUser.govId"></span>
+                    </div>
+
+                    <div class="flex gap-2 p-1 bg-indigo-50 rounded-lg border border-indigo-100">
+                        <button @click="superAdminTab = 'requests'" :class="{'bg-white shadow-sm': superAdminTab === 'requests'}" class="flex-1 py-1.5 text-sm font-bold rounded-md transition text-indigo-900">Access Requests</button>
+                        <button @click="superAdminTab = 'employees'" :class="{'bg-white shadow-sm': superAdminTab === 'employees'}" class="flex-1 py-1.5 text-sm font-bold rounded-md transition text-indigo-900">Employee Mgmt</button>
+                    </div>
+
+                    <!-- Requests Tab -->
+                    <template x-if="superAdminTab === 'requests'">
+                        <div class="space-y-3 mt-2">
+                            <template x-if="pendingRequests.length === 0">
+                                <p class="text-slate-500 text-sm text-center py-8 bg-white rounded-xl border border-slate-100">No pending requests.</p>
+                            </template>
+                            <template x-for="req in pendingRequests" :key="req.id">
+                                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <div>
+                                            <span class="text-xs font-bold bg-slate-100 px-2 py-1 rounded" x-text="getDeptName(req.deptId)"></span>
+                                            <span class="text-xs text-slate-500 ml-2" x-text="'by ' + req.requestedBy"></span>
+                                        </div>
+                                        <span class="text-[10px] text-slate-400" x-text="formatDate(req.timestamp, 'shortDate')"></span>
+                                    </div>
+                                    <p class="text-sm font-bold text-slate-800 mb-4"><span x-text="req.type + ':'"></span> <span class="text-blue-600" x-text="req.targetName"></span></p>
+                                    <div class="flex gap-2">
+                                        <button @click="resolveAdminRequest(req.id, 'Rejected')" class="flex-1 py-2 text-xs font-bold text-red-700 bg-red-50 hover:bg-red-100 rounded-lg border border-red-200 transition">Reject</button>
+                                        <button @click="resolveAdminRequest(req.id, 'Approved')" class="flex-1 py-2 text-xs font-bold text-green-700 bg-green-50 hover:bg-green-100 rounded-lg border border-green-200 transition">Approve</button>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <!-- Employees Tab -->
+                    <template x-if="superAdminTab === 'employees'">
+                        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 mt-2 space-y-4">
+                            <div class="flex justify-between items-center border-b pb-2">
+                                <h3 class="font-bold text-slate-800">Employee Directory</h3>
+                                <button @click="openAddEmployee()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg font-bold transition shadow-sm">+ Add New</button>
+                            </div>
+
+                            <template x-if="isEmployeeFormOpen">
+                                <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 space-y-3 mb-6 animate-fade-in">
+                                    <h4 class="font-bold text-sm text-indigo-900" x-text="editingEmployee ? 'Edit Employee' : 'Add Employee'"></h4>
+                                    <template x-if="employeeFormError"><p class="text-red-600 text-xs font-bold" x-text="employeeFormError"></p></template>
+                                    
+                                    <div><label class="block text-xs font-bold text-slate-700 mb-1">Name</label><input x-model="empForm.name" type="text" class="w-full border p-2 text-sm rounded"></div>
+                                    <div><label class="block text-xs font-bold text-slate-700 mb-1">Gov ID</label><input x-model="empForm.govId" type="text" class="w-full border p-2 text-sm rounded font-mono"></div>
+                                    <div><label class="block text-xs font-bold text-slate-700 mb-1">Contact</label><input x-model="empForm.contact" type="text" class="w-full border p-2 text-sm rounded font-mono"></div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-700 mb-1">Designation</label>
+                                        <select x-model="empForm.designation" class="w-full border p-2 text-sm rounded bg-white">
+                                            <template x-for="desig in designations" :key="desig">
+                                                <option :value="desig" x-text="desig"></option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-700 mb-1">Department</label>
+                                        <select x-model="empForm.deptId" class="w-full border p-2 text-sm rounded bg-white">
+                                            <template x-for="dept in departments" :key="dept.id">
+                                                <option :value="dept.id" x-text="dept.name"></option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                    <div class="flex gap-2 pt-2">
+                                        <button @click="saveEmployee()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2 rounded">Save</button>
+                                        <button @click="isEmployeeFormOpen = false" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold py-2 rounded">Cancel</button>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <div class="space-y-6 pt-2">
+                                <template x-for="dept in departments" :key="dept.id">
+                                    <div>
+                                        <h4 class="font-bold text-xs text-indigo-800 uppercase mb-2 flex items-center gap-2">
+                                            <span x-text="dept.icon"></span> <span x-text="dept.name"></span>
+                                        </h4>
+                                        <div class="space-y-2">
+                                            <template x-for="emp in getEmployeesByDept(dept.id)" :key="emp.id">
+                                                <div class="flex justify-between items-center p-2 bg-slate-50 border rounded-lg">
+                                                    <div>
+                                                        <p class="text-sm font-bold text-slate-800"><span x-text="emp.name"></span> <span class="text-xs text-indigo-600 font-normal" x-text="'(' + (emp.designation || 'Alert Handler') + ')'"></span></p>
+                                                        <p class="text-[10px] text-slate-500 font-mono">ID: <span x-text="emp.govId"></span></p>
+                                                    </div>
+                                                    <button @click="openEditEmployee(emp)" class="text-xs bg-slate-200 px-3 py-1 rounded font-bold">Edit</button>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+        </div>
+
+        <!-- 4. DEPARTMENTS -->
+        <div x-show="currentView === 'departments'" class="animate-fade-in">
+            <h2 class="text-2xl font-bold mb-2">Select Department</h2>
+            <p class="text-slate-600 text-sm mb-6">Which authority handles this issue?</p>
+            <div class="grid grid-cols-2 gap-3">
+                <template x-for="dept in departments" :key="dept.id">
+                    <button @click="selectDepartment(dept)" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 text-left hover:border-blue-300 hover:shadow-md transition active:scale-95 flex flex-col items-start gap-2">
+                        <span class="text-3xl" x-text="dept.icon"></span>
+                        <span class="font-bold text-sm leading-tight" x-text="dept.name"></span>
+                    </button>
+                </template>
+            </div>
+            <button @click="navigate(currentUser ? 'dashboard' : 'landing')" class="w-full text-slate-500 py-4 mt-4 text-sm">Cancel</button>
+        </div>
+
+        <!-- 5. CAPTURE -->
+        <div x-show="currentView === 'capture'" class="animate-fade-in space-y-4">
+            <div class="bg-blue-50 p-3 rounded-xl border border-blue-100 flex justify-between items-center">
+                <div>
+                    <p class="font-bold text-sm text-blue-900" x-text="(activeDept?.icon || '') + ' ' + (activeDept?.name || '')"></p>
+                    <p class="text-xs text-blue-700">Emergency: <a :href="'tel:' + activeDept?.emergency" class="font-bold underline" x-text="activeDept?.emergency"></a></p>
+                </div>
+                <button @click="startGuestReport()" class="text-xs bg-blue-200 text-blue-800 px-3 py-1.5 rounded-lg hover:bg-blue-300 transition">Change</button>
+            </div>
+
+            <template x-if="!capturedImage">
+                <div>
+                    <div class="relative rounded-2xl overflow-hidden bg-black aspect-[3/4] shadow-inner mb-4">
+                        <video x-ref="videoElement" autoplay playsinline class="w-full h-full object-cover" :class="{'hidden': !isCameraReady}"></video>
+                        <div x-show="!isCameraReady" class="absolute inset-0 flex flex-col items-center justify-center text-white/50 p-6 text-center">
+                            <span class="animate-spin text-3xl mb-4">⏳</span><p class="text-sm">Requesting Camera...</p>
+                        </div>
+                    </div>
+                    <button :disabled="!isCameraReady" @click="capturePhoto()" class="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold py-4 rounded-xl shadow-md transition flex justify-center gap-2 text-lg">
+                        <span class="text-2xl">📸</span> Capture Evidence
+                    </button>
+                </div>
+            </template>
+
+            <template x-if="capturedImage">
+                <div>
+                    <div class="bg-white p-2 rounded-2xl shadow-sm border border-slate-100 mb-4">
+                        <img :src="capturedImage" class="w-full rounded-xl">
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 mb-4">
+                        <label class="block text-sm font-bold text-slate-800 mb-2">Describe the Issue</label>
+                        <textarea x-model="issueDescription" rows="3" class="w-full border border-slate-300 rounded-lg p-3 text-sm outline-none" placeholder="Description..."></textarea>
+                        <template x-if="formError"><p class="text-red-600 text-xs mt-2 font-bold" x-text="formError"></p></template>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <button :disabled="isSubmitting" @click="submitIssue()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-md transition" x-text="isSubmitting ? 'Submitting...' : 'Submit Ticket'"></button>
+                        <button :disabled="isSubmitting" @click="retakePhoto()" class="w-full text-slate-500 py-3 font-medium transition">Retake Photo</button>
+                    </div>
+                </div>
+            </template>
+            <canvas x-ref="canvasElement" class="hidden"></canvas>
+        </div>
+
+        <!-- 6. SUCCESS -->
+        <div x-show="currentView === 'success'" class="animate-fade-in bg-white p-8 rounded-2xl shadow-sm border border-slate-100 text-center mt-10">
+            <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">✓</div>
+            <h2 class="text-2xl font-bold mb-2">Issue Reported!</h2>
+            <p class="text-slate-600 text-sm mb-6">Complaint ID: <span class="font-mono font-bold text-slate-900" x-text="lastTicketRef"></span></p>
+            
+            <template x-if="currentUser">
+                <button @click="navigate('dashboard')" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-4 rounded-xl transition">Back to Dashboard</button>
+            </template>
+            <template x-if="!currentUser">
+                <p class="text-xs text-slate-500 font-bold animate-pulse mt-4">Redirecting to home...</p>
+            </template>
+        </div>
+    </main>
+
+    <script>
+        function appData() {
+            return {
+                // State
+                currentView: 'landing',
+                currentUser: null,
+                loginType: 'citizen',
+                authMode: 'login',
+                selectedLoginRole: 'admin',
+                selectedDeptId: '1',
+                authError: '',
+                isAuthenticating: false,
+                
+                // Form Data
+                authForm: { name: '', idVal: '', pass: '' },
+                issueDescription: '',
+                empForm: { name: '', govId: '', contact: '', designation: 'Alert Handler', deptId: '1' },
+
+                // Admin / Super Admin Sub-Tabs
+                adminTab: 'tickets',
+                superAdminTab: 'requests',
+                reqActionType: 'Add Member',
+                reqDeleteTarget: '',
+
+                isEmployeeFormOpen: false,
+                editingEmployee: null,
+                employeeFormError: '',
+
+                activeDept: null,
+                capturedImage: null,
+                lastTicketRef: '',
+                formError: '',
+                isSubmitting: false,
+                
+                isCameraReady: false,
+                mediaStream: null,
+                
+                // Data Store
+                allIssues: [],
+                allRequests: [],
+                allOfficials: [],
+                departments: [
+                    { id: 1, name: 'Fire Department', icon: '🔥', emergency: '6304084803', desc: 'Fires, gas leaks.' },
+                    { id: 2, name: 'GVMC Municipal', icon: '🏙️', emergency: '7396533156', desc: 'Garbage, roads.' },
+                    { id: 3, name: 'Water Supply', icon: '💧', emergency: '9705706928', desc: 'Burst pipes.' },
+                    { id: 4, name: 'Electricity', icon: '⚡', emergency: '6304084803', desc: 'Power outages.' },
+                    { id: 5, name: 'Traffic Police', icon: '🚦', emergency: '7396533156', desc: 'Accidents.' },
+                    { id: 6, name: 'Health', icon: '🏥', emergency: '9705706928', desc: 'Sanitation.' }
+                ],
+                designations: ['Alert Handler', 'Chief Officer', 'Inspector', 'Supervisor', 'Engineer', 'Line Chief', 'Health Officer'],
+
+                // Computed Properties (Defined as getters)
+                get citizenIssues() { return this.allIssues; },
+                get adminIssues() { return this.allIssues.filter(i => i.deptId === this.currentUser?.deptId); },
+                get pendingRequests() { return this.allRequests.filter(r => r.status === 'Pending'); },
+                get myTeamMembers() {
+                    if (this.currentUser?.role !== 'admin') return [];
+                    let mockTeam = this.allOfficials.filter(u => u.deptId === this.currentUser.deptId);
+                    if (!mockTeam.find(u => u.govId === this.currentUser.govId)) mockTeam.unshift(this.currentUser);
+                    return mockTeam;
+                },
+
+                // Initialization
+                initApp() {
+                    this.seedMockData();
+                    // Firebase connection can be instantiated here using window.fbDeps if config exists. 
+                    // This mirrors your local fallback code functionality out-of-the-box.
+                },
+
+                seedMockData() {
+                    this.allIssues = [{ id: 'VZG-1001', deptId: 2, desc: 'Pothole on Beach Rd', status: 'Active', timestamp: new Date().toISOString(), photoUrl: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2RkZCIvPjwvc3ZnPg==' }];
+                    this.allOfficials = [
+                        { id: 'USR-MOCK-1', name: 'K. Rao', role: 'admin', deptId: 1, govId: 'EMP-F01', contactNumber: '6304084803', designation: 'Chief Officer' },
+                        { id: 'USR-MOCK-2', name: 'Srinivas', role: 'admin', deptId: 2, govId: 'EMP-M01', contactNumber: '7396533156', designation: 'Alert Handler' }
+                    ];
+                },
+
+                // Auth
+                openLogin(type) {
+                    this.loginType = type;
+                    this.authMode = 'login';
+                    this.authError = '';
+                    this.selectedLoginRole = type === 'citizen' ? 'citizen' : 'admin';
+                    this.selectedDeptId = '1'; 
+                    this.navigate('login');
+                },
+
+                async processAuth(isRegister) {
+                    this.authError = '';
+                    if (!this.authForm.idVal.trim()) return this.authError = 'Unique ID Proof is mandatory.';
+                    if (!this.authForm.pass.trim() || this.authForm.pass.length < 6) return this.authError = 'Password is required (min 6 chars).';
+                    if (isRegister && !this.authForm.name.trim()) return this.authError = 'Full Name is required.';
+
+                    this.isAuthenticating = true;
+                    
+                    // Simulating Firebase Fallback
+                    setTimeout(() => {
+                        const role = this.selectedLoginRole;
+                        const deptId = role === 'admin' ? parseInt(this.selectedDeptId) : undefined;
+                        this.currentUser = { 
+                            id: `USR-${Math.floor(Math.random()*1000)}`, 
+                            name: this.authForm.name || 'Demo User', 
+                            role, 
+                            deptId, 
+                            govId: this.authForm.idVal, 
+                            designation: role === 'admin' ? 'Alert Handler' : undefined 
+                        };
+                        this.isAuthenticating = false;
+                        this.navigate('dashboard');
+                    }, 800);
+                },
+
+                logoutUser() {
+                    this.currentUser = null;
+                    this.navigate('landing');
+                },
+
+                navigate(view) {
+                    if (view !== 'capture') { this.stopCamera(); this.capturedImage = null; }
+                    this.formError = '';
+                    this.currentView = view;
+                },
+
+                // UI Helpers
+                getDeptName(id) { return this.departments.find(d => d.id === id)?.name || 'Unknown'; },
+                getStatusClass(status) {
+                    switch(status) {
+                        case 'Request': return 'bg-slate-100 text-slate-600 border-slate-300';
+                        case 'Active': return 'bg-blue-100 text-blue-700 border-blue-300';
+                        case 'Hold': return 'bg-orange-100 text-orange-700 border-orange-300';
+                        case 'Resolved': return 'bg-green-100 text-green-700 border-green-300';
+                        default: return 'bg-slate-100 text-slate-600';
+                    }
+                },
+                formatDate(dateStr, type = 'short') {
+                    const d = new Date(dateStr);
+                    if (type === 'shortTime') return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    if (type === 'shortDate') return d.toLocaleDateString();
+                    return d.toLocaleString([], { dateStyle: 'short', timeStyle: 'short' });
+                },
+
+                // Admin
+                updateIssueStatus(issueId, newStatus) {
+                    this.allIssues = this.allIssues.map(i => i.id === issueId ? { ...i, status: newStatus } : i);
+                },
+
+                submitTeamReq() {
+                    const type = this.reqActionType;
+                    const targetName = type === 'Add Member' ? 'Open New Slot' : this.reqDeleteTarget;
+                    this.allRequests = [{ id: `REQ-${Math.random()}`, deptId: this.currentUser.deptId, type, targetName, status: 'Pending', requestedBy: this.currentUser.name, timestamp: new Date().toISOString() }, ...this.allRequests];
+                    this.reqDeleteTarget = '';
+                },
+
+                resolveAdminRequest(reqId, status) {
+                    const req = this.allRequests.find(r => r.id === reqId);
+                    if (req && status === 'Approved') {
+                        if (req.type === 'Delete Member') {
+                            this.allOfficials = this.allOfficials.filter(o => `${o.name} (${o.govId})` !== req.targetName);
+                        } else {
+                            this.superAdminTab = 'employees';
+                            this.openAddEmployee();
+                        }
+                    }
+                    this.allRequests = this.allRequests.map(r => r.id === reqId ? { ...r, status } : r);
+                },
+
+                // Super Admin
+                getEmployeesByDept(deptId) { return this.allOfficials.filter(u => u.deptId === deptId); },
+                
+                openAddEmployee() {
+                    this.editingEmployee = null;
+                    this.empForm = { name: '', govId: '', contact: '', designation: 'Alert Handler', deptId: '1' };
+                    this.isEmployeeFormOpen = true;
+                },
+
+                openEditEmployee(emp) {
+                    this.editingEmployee = emp;
+                    this.empForm = { ...emp };
+                    this.isEmployeeFormOpen = true;
+                },
+
+                saveEmployee() {
+                    this.employeeFormError = '';
+                    if (!this.empForm.name.trim()) return this.employeeFormError = 'Name is required.';
+                    if (!this.empForm.govId.trim()) return this.employeeFormError = 'ID is required.';
+                    
+                    const deptId = parseInt(this.empForm.deptId);
+                    
+                    if (this.editingEmployee) {
+                        this.allOfficials = this.allOfficials.map(o => o.id === this.editingEmployee.id ? { ...o, ...this.empForm, deptId } : o);
+                    } else {
+                        const newEmp = { id: `USR-MOCK-${Math.floor(Math.random()*10000)}`, role: 'admin', ...this.empForm, deptId };
+                        this.allOfficials = [...this.allOfficials, newEmp];
+                    }
+                    this.isEmployeeFormOpen = false;
+                },
+
+                // Camera & Submit Logic
+                startGuestReport() { this.activeDept = null; this.navigate('departments'); },
+                selectDepartment(dept) { this.activeDept = dept; this.openCamera(); },
+
+                async openCamera() {
+                    this.navigate('capture');
+                    this.capturedImage = null;
+                    this.isCameraReady = false;
+                    this.issueDescription = '';
+                    
+                    try {
+                        this.mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+                        setTimeout(() => { 
+                            if (this.$refs.videoElement) { 
+                                this.$refs.videoElement.srcObject = this.mediaStream; 
+                                this.$refs.videoElement.onloadedmetadata = () => this.isCameraReady = true; 
+                            } 
+                        }, 50);
+                    } catch (err) { setTimeout(() => { this.isCameraReady = true; }, 1000); }
+                },
+
+                stopCamera() { 
+                    if (this.mediaStream) { this.mediaStream.getTracks().forEach(t => t.stop()); this.mediaStream = null; } 
+                    this.isCameraReady = false; 
+                },
+
+                capturePhoto() {
+                    const video = this.$refs.videoElement; 
+                    const canvas = this.$refs.canvasElement;
+                    if (!this.mediaStream) { 
+                        canvas.width = 480; canvas.height = 640; const ctx = canvas.getContext('2d');
+                        ctx.fillStyle = '#1e293b'; ctx.fillRect(0,0, canvas.width, canvas.height); ctx.fillStyle = '#334155'; ctx.beginPath(); ctx.arc(240, 200, 80, 0, 2*Math.PI); ctx.fill();
+                    } else {
+                        const scale = Math.min(640 / video.videoWidth, 1); canvas.width = video.videoWidth * scale; canvas.height = video.videoHeight * scale;
+                        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+                    }
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.6)'; ctx.fillRect(0, canvas.height - 80, canvas.width, 80);
+                    ctx.fillStyle = '#FFFFFF'; ctx.font = '16px monospace';
+                    ctx.fillText(`🚨 VIZAG ALERT | ${new Date().toLocaleString()}`, 15, canvas.height - 50);
+                    this.capturedImage = canvas.toDataURL('image/jpeg', 0.8); 
+                    this.stopCamera(); 
+                },
+
+                retakePhoto() { this.capturedImage = null; this.formError = ''; this.openCamera(); },
+
+                submitIssue() {
+                    if (!this.issueDescription.trim()) return this.formError = 'Please describe the issue.';
+                    this.formError = ''; this.isSubmitting = true;
+
+                    const newIssue = { id: `VZG-${Math.floor(Math.random() * 9000) + 1000}`, deptId: this.activeDept.id, desc: this.issueDescription, status: 'Request', timestamp: new Date().toISOString(), photoUrl: this.capturedImage };
+                    this.allIssues = [newIssue, ...this.allIssues];
+
+                    this.lastTicketRef = newIssue.id; this.isSubmitting = false; this.navigate('success');
+
+                    if (!this.currentUser) {
+                        setTimeout(() => { if (this.currentView === 'success') this.navigate('landing'); }, 3000);
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
