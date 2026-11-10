@@ -1,0 +1,492 @@
+openapi: 3.0.3
+info:
+  title: VizagAlert API (proposed service layer)
+  version: 1.0.0
+  description: Portfolio case-study specification. Not a live service.
+servers:
+- url: https://api.vizagalert.example/v1
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: Firebase ID token
+  schemas:
+    ComplaintCreate:
+      type: object
+      required:
+      - departmentId
+      - categoryId
+      - description
+      - latitude
+      - longitude
+      - address
+      - capturedAtUtc
+      - imagePath
+      properties:
+        departmentId:
+          type: string
+        categoryId:
+          type: string
+        description:
+          type: string
+          minLength: 10
+          maxLength: 500
+        latitude:
+          type: number
+        longitude:
+          type: number
+        address:
+          type: string
+        capturedAtUtc:
+          type: string
+          format: date-time
+        imagePath:
+          type: string
+    ComplaintCreated:
+      type: object
+      properties:
+        complaintId:
+          type: string
+        publicId:
+          type: string
+          example: VZG-4892
+        status:
+          type: string
+        priority:
+          type: string
+          enum:
+          - P1
+          - P2
+          - P3
+          - P4
+        linkedToMaster:
+          type: boolean
+        masterPublicId:
+          type: string
+        ackDueUtc:
+          type: string
+          format: date-time
+        resolveDueUtc:
+          type: string
+          format: date-time
+    Complaint:
+      type: object
+      properties:
+        complaintId:
+          type: string
+        publicId:
+          type: string
+        department:
+          type: string
+        category:
+          type: string
+        status:
+          type: string
+          enum:
+          - REQUEST
+          - ACTIVE
+          - HOLD
+          - RESOLVED
+          - REOPENED
+          - LINKED
+        priority:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        resolveDueUtc:
+          type: string
+          format: date-time
+        overdue:
+          type: boolean
+        duplicateCount:
+          type: integer
+    StatusUpdate:
+      type: object
+      required:
+      - status
+      properties:
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - HOLD
+          - RESOLVED
+        holdReason:
+          type: string
+          enum:
+          - PERMIT_PENDING
+          - MATERIAL_AWAITED
+          - OTHER_DEPARTMENT
+          - ACCESS_ISSUE
+          - WEATHER_SAFETY
+        remark:
+          type: string
+          minLength: 10
+        completionImagePath:
+          type: string
+        breachReason:
+          type: string
+security:
+- bearer: []
+paths:
+  /auth/citizen/register:
+    post:
+      summary: Register a Verified Citizen
+      description: 'Allowed roles: Guest.'
+      responses:
+        '201': &id002
+          description: Created
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+  /auth/citizen/login:
+    post:
+      summary: Citizen sign-in
+      description: 'Allowed roles: Guest.'
+      responses:
+        '200': &id001
+          description: OK
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+  /auth/official/login:
+    post:
+      summary: Official sign-in with department, Employee ID, password
+      description: 'Allowed roles: Official.'
+      responses:
+        '200': *id001
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+  /auth/admin/login:
+    post:
+      summary: Super Admin sign-in
+      description: 'Allowed roles: Super Admin.'
+      responses:
+        '200': *id001
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+  /departments:
+    get:
+      summary: List the six departments with emergency numbers
+      description: 'Allowed roles: Any.'
+      responses:
+        '200': *id001
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+  /departments/{deptId}/categories:
+    get:
+      summary: List categories for a department
+      description: 'Allowed roles: Any.'
+      responses:
+        '200': *id001
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+      parameters:
+      - name: deptId
+        in: path
+        required: true
+        schema:
+          type: string
+  /complaints/uploads:
+    post:
+      summary: Request a signed URL for the stamped photo
+      description: 'Allowed roles: Guest, Citizen.'
+      responses:
+        '201': *id002
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+  /complaints:
+    post:
+      summary: Create a complaint
+      description: 'Allowed roles: Guest, Citizen.'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplaintCreated'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '400':
+          description: VALIDATION_FAILED or FILE_SIGNATURE_MISMATCH
+        '413':
+          description: FILE_TOO_LARGE
+        '422':
+          description: OUTSIDE_SERVICE_AREA
+        '429':
+          description: RATE_LIMITED
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComplaintCreate'
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+  /complaints/{complaintId}:
+    get:
+      summary: Track one complaint
+      description: 'Allowed roles: Own citizen, department official, Super Admin.'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Complaint'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+      parameters:
+      - name: complaintId
+        in: path
+        required: true
+        schema:
+          type: string
+  /me/complaints:
+    get:
+      summary: List the citizen’s complaints
+      description: 'Allowed roles: Verified Citizen.'
+      responses:
+        '200': *id001
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+  /departments/{deptId}/complaints:
+    get:
+      summary: Department queue with filters
+      description: 'Allowed roles: Department official, Super Admin.'
+      responses:
+        '200': *id001
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+      parameters:
+      - name: deptId
+        in: path
+        required: true
+        schema:
+          type: string
+  /complaints/{complaintId}/status:
+    patch:
+      summary: Change status (Active, Hold, Resolved)
+      description: 'Allowed roles: Department official, Super Admin.'
+      responses:
+        '200': *id001
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '409':
+          description: INVALID_TRANSITION or HOLD_NOT_ALLOWED
+        '422':
+          description: REMARK_REQUIRED or BREACH_REASON_REQUIRED
+      parameters:
+      - name: complaintId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatusUpdate'
+  /complaints/{complaintId}/assignments:
+    post:
+      summary: Assign a Field Inspector
+      description: 'Allowed roles: Handler, Supervisor, Super Admin.'
+      responses:
+        '201': *id002
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+      parameters:
+      - name: complaintId
+        in: path
+        required: true
+        schema:
+          type: string
+  /complaints/{complaintId}/reassignment-requests:
+    post:
+      summary: Request move to another department
+      description: 'Allowed roles: Handler, Supervisor.'
+      responses:
+        '201': *id002
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+      parameters:
+      - name: complaintId
+        in: path
+        required: true
+        schema:
+          type: string
+  /reassignment-requests/{requestId}/decision:
+    post:
+      summary: Approve or reject reassignment
+      description: 'Allowed roles: Super Admin.'
+      responses:
+        '200': *id001
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+      parameters:
+      - name: requestId
+        in: path
+        required: true
+        schema:
+          type: string
+  /complaints/{complaintId}/feedback:
+    post:
+      summary: Rate a resolved complaint
+      description: 'Allowed roles: Own citizen.'
+      responses:
+        '201': *id002
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+      parameters:
+      - name: complaintId
+        in: path
+        required: true
+        schema:
+          type: string
+  /complaints/{complaintId}/reopen:
+    post:
+      summary: Reopen within 7 days
+      description: 'Allowed roles: Own citizen.'
+      responses:
+        '200': *id001
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+      parameters:
+      - name: complaintId
+        in: path
+        required: true
+        schema:
+          type: string
+  /complaints/{complaintId}/audit-log:
+    get:
+      summary: Read the audit trail
+      description: 'Allowed roles: Department official, Super Admin.'
+      responses:
+        '200': *id001
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+      parameters:
+      - name: complaintId
+        in: path
+        required: true
+        schema:
+          type: string
+  /admin-requests:
+    post:
+      summary: Raise Add Member or Delete Member request
+      description: 'Allowed roles: Department official.'
+      responses:
+        '201': *id002
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+  /admin-requests/{requestId}/decision:
+    post:
+      summary: Approve or reject roster request
+      description: 'Allowed roles: Super Admin.'
+      responses:
+        '200': *id001
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+      parameters:
+      - name: requestId
+        in: path
+        required: true
+        schema:
+          type: string
+  /employees:
+    get:
+      summary: Employee directory
+      description: 'Allowed roles: Super Admin.'
+      responses:
+        '200': *id001
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+  /sla-policies:
+    get:
+      summary: SLA policy and escalation ladder
+      description: 'Allowed roles: Official, Super Admin.'
+      responses:
+        '200': *id001
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+  /reports/sla-compliance:
+    get:
+      summary: SLA compliance and backlog by department and period
+      description: 'Allowed roles: Supervisor, Super Admin.'
+      responses:
+        '200': *id001
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+  /webhooks/twilio/status:
+    post:
+      summary: Twilio delivery receipts
+      description: 'Allowed roles: Twilio (signature checked).'
+      responses:
+        '204':
+          description: No content
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '409':
+          description: INVALID_TRANSITION or HOLD_NOT_ALLOWED
+        '422':
+          description: REMARK_REQUIRED or BREACH_REASON_REQUIRED
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatusUpdate'
