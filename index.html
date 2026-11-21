@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sai Balaji Budumuru — Business Analyst portfolio showcasing requirements engineering, process modelling, workflow analysis, data and UAT artifacts.">
+  <title>Sai Balaji Budumuru | Business Analyst Portfolio</title>
+  <style>
+    :root {
+      --ink:#17243a; --muted:#607086; --line:#e2e8f0; --paper:#ffffff;
+      --canvas:#f5f7fb; --blue:#2457a7; --blue2:#eaf1fc; --teal:#167b78;
+      --max:1120px; --radius:16px;
+    }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; background:var(--canvas); color:var(--ink); font:16px/1.65 Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; }
+    a { color:var(--blue); text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    .wrap { width:min(var(--max), calc(100% - 40px)); margin:auto; }
+    header { background:rgba(255,255,255,.94); border-bottom:1px solid var(--line); position:sticky; top:0; z-index:10; backdrop-filter:blur(12px); }
+    .nav { min-height:68px; display:flex; align-items:center; justify-content:space-between; gap:24px; }
+    .brand { font-weight:800; letter-spacing:-.03em; color:var(--ink); }
+    nav { display:flex; gap:24px; flex-wrap:wrap; font-size:14px; font-weight:650; }
+    nav a { color:#45566f; }
+    .hero { padding:84px 0 64px; background:linear-gradient(120deg,#eef4ff 0%,#f8fbff 58%,#eef8f7 100%); border-bottom:1px solid var(--line); }
+    .eyebrow { color:var(--blue); text-transform:uppercase; letter-spacing:.14em; font-size:12px; font-weight:800; }
+    h1 { font-size:clamp(38px,6vw,62px); line-height:1.06; letter-spacing:-.055em; margin:16px 0 18px; max-width:850px; }
+    .lead { color:#50617a; font-size:19px; max-width:780px; margin:0 0 28px; }
+    .actions { display:flex; flex-wrap:wrap; gap:12px; }
+    .btn { display:inline-flex; align-items:center; justify-content:center; padding:11px 17px; border-radius:9px; font-weight:750; border:1px solid var(--blue); }
+    .btn.primary { background:var(--blue); color:white; }
+    .btn.secondary { background:white; color:var(--blue); }
+    section { padding:66px 0; }
+    .section-head { max-width:720px; margin-bottom:28px; }
+    h2 { font-size:30px; letter-spacing:-.035em; line-height:1.2; margin:0 0 10px; }
+    .sub { color:var(--muted); margin:0; }
+    .grid { display:grid; grid-template-columns:repeat(12,1fr); gap:18px; }
+    .card { background:var(--paper); border:1px solid var(--line); border-radius:var(--radius); padding:24px; box-shadow:0 5px 18px rgba(20,38,65,.035); }
+    .span-4 { grid-column:span 4; } .span-6 { grid-column:span 6; } .span-8 { grid-column:span 8; } .span-12 { grid-column:span 12; }
+    .tag { display:inline-block; font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:#315b96; background:var(--blue2); border-radius:999px; padding:5px 9px; margin:0 6px 8px 0; }
+    h3 { margin:8px 0 9px; font-size:20px; letter-spacing:-.02em; line-height:1.3; }
+    p { margin:0 0 12px; }
+    .muted { color:var(--muted); }
+    ul.clean { padding-left:19px; margin:12px 0 0; color:#4f6077; }
+    ul.clean li { margin:6px 0; }
+    .metric { font-size:27px; font-weight:850; letter-spacing:-.04em; color:var(--blue); }
+    .metric-label { font-size:13px; color:var(--muted); }
+    .project-top { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+    .status { white-space:nowrap; border:1px solid #d7e1ee; color:#53647b; padding:4px 8px; border-radius:999px; font-size:11px; font-weight:750; }
+    .artifact-list { display:flex; flex-wrap:wrap; gap:7px; margin-top:15px; }
+    .artifact-list span { font-size:12px; color:#475a73; background:#f3f6fa; border:1px solid #e7edf4; border-radius:7px; padding:5px 8px; }
+    .timeline { border-left:2px solid #d9e3f0; padding-left:22px; margin-left:8px; }
+    .role { position:relative; margin-bottom:25px; }
+    .role:before { content:""; width:10px; height:10px; border-radius:50%; background:var(--blue); position:absolute; left:-28px; top:8px; box-shadow:0 0 0 4px #eaf1fc; }
+    .role h3 { margin:0 0 4px; }
+    .date { color:var(--muted); font-size:13px; font-weight:650; }
+    .skill-group { padding:17px 0; border-bottom:1px solid var(--line); }
+    .skill-group:last-child { border:0; }
+    .skill-group strong { display:block; margin-bottom:5px; }
+    .callout { background:#edf5f5; border:1px solid #d5e9e7; border-radius:var(--radius); padding:24px; }
+    footer { background:#17243a; color:#d8e2ef; padding:34px 0; }
+    footer a { color:#fff; }
+    .foot { display:flex; justify-content:space-between; flex-wrap:wrap; gap:15px; }
+    @media(max-width:760px) {
+      .nav { align-items:flex-start; padding:15px 0; flex-direction:column; }
+      nav { gap:14px; }
+      .hero { padding:60px 0 48px; }
+      section { padding:48px 0; }
+      .span-4,.span-6,.span-8 { grid-column:span 12; }
+      .project-top { display:block; }
+      .status { display:inline-block; margin-top:7px; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#home">SB<span style="color:#2457a7">.</span> Portfolio</a>
+    <nav aria-label="Main navigation">
+      <a href="#about">About</a><a href="#experience">Experience</a><a href="#case-studies">Case Studies</a>
+      <a href="#capabilities">Capabilities</a><a href="#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main id="home">
+  <section class="hero">
+    <div class="wrap">
+      <div class="eyebrow">Business Analysis · Systems Thinking · Digital Workflows</div>
+      <h1>Turning business needs into clear, buildable solutions.</h1>
+      <p class="lead">I’m Sai Balaji Budumuru, a Business Analyst with 2.5+ years of experience in enterprise software and IoT delivery. I combine business analysis practices with a technical foundation to clarify requirements, model workflows and support effective software delivery.</p>
+      <div class="actions">
+        <a class="btn primary" href="#case-studies">Explore case studies</a>
+        <a class="btn secondary" href="mailto:budumurusaibalaji13@gmail.com">Contact me</a>
+        <a class="btn secondary" href="https://www.linkedin.com/in/sai-balaji-budumuru-433031213/" target="_blank" rel="noreferrer">LinkedIn profile</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="wrap grid">
+      <div class="span-8">
+        <div class="section-head">
+          <div class="eyebrow">01 / About</div>
+          <h2>Business analysis with a technical foundation</h2>
+          <p class="sub">My background in .NET development helps me connect business objectives with system behaviour, data structures, integrations and delivery constraints.</p>
+        </div>
+        <p>I have contributed to requirements analysis and workflow improvement in aviation safety and permit management, and previously worked on an IoT-based railway water-level monitoring solution. My BA focus includes eliciting and structuring requirements, analysing current and future-state processes, defining business rules, supporting traceability and planning user acceptance testing.</p>
+        <p class="muted">My formal employment titles have been Software Developer. The BA responsibilities described here reflect work undertaken alongside software delivery, not a claim of prior full-time employment under a Business Analyst title.</p>
+      </div>
+      <div class="span-4 card">
+        <div class="metric">2.5+ years</div><div class="metric-label">Software delivery experience with BA responsibilities</div>
+        <div style="height:18px"></div>
+        <div class="metric">5</div><div class="metric-label">Portfolio case studies across different domains</div>
+        <div style="height:18px"></div>
+        <div class="metric">India</div><div class="metric-label">Based in Visakhapatnam · Open to BA opportunities</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="experience" style="background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+    <div class="wrap grid">
+      <div class="span-4 section-head">
+        <div class="eyebrow">02 / Experience</div>
+        <h2>Professional experience</h2>
+        <p class="sub">Practical delivery experience across enterprise workflows and connected systems.</p>
+      </div>
+      <div class="span-8">
+        <div class="timeline">
+          <div class="role">
+            <h3>Software Developer · Prospecta Technologies</h3>
+            <div class="date">March 2025 – August 2026 · Visakhapatnam</div>
+            <ul class="clean">
+              <li>Contributed to AviatorSMS, an aviation safety and permit management platform, including requirements clarification and functional analysis for permit and compliance workflows.</li>
+              <li>Worked on HIRA workflow requirements involving risk assessment, approval routing, role-based access and escalation behaviour.</li>
+              <li>Supported functional documentation, change-impact analysis, SQL-based investigation and UAT activities in collaboration with the delivery team.</li>
+              <li>Technical context: ASP.NET Core, SQL Server, REST APIs and web application workflows.</li>
+            </ul>
+          </div>
+          <div class="role">
+            <h3>Software Developer · Areca Embedded Systems</h3>
+            <div class="date">September 2023 – October 2024 · Hyderabad</div>
+            <ul class="clean">
+              <li>Worked on an IoT railway water-level monitoring solution involving sensor inputs, automated alerts and operational workflows.</li>
+              <li>Contributed to requirement clarification, feasibility analysis, business-rule implementation and customer feedback cycles.</li>
+              <li>Worked with relational database structures and system integration requirements.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="case-studies">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow">03 / Selected work</div>
+        <h2>Business analysis case studies</h2>
+        <p class="sub">A mix of implemented product work, self-directed analysis and conceptual case studies. Each project is labelled by its actual status; hypothetical business rules are not presented as regulatory requirements.</p>
+      </div>
+      <div class="grid">
+        <article class="card span-6">
+          <div class="project-top"><div><span class="tag">Civic services · GovTech</span><h3>VizagAlert — Civic Complaint Management</h3></div><span class="status">Product / case study</span></div>
+          <p class="muted">A civic issue reporting and routing concept focused on helping citizens submit complaints and enabling departments to manage ownership, status and resolution workflows.</p>
+          <ul class="clean">
+            <li>Stakeholder and role analysis for citizens, department officials and administrators.</li>
+            <li>Complaint lifecycle, department routing, SLA and escalation workflow analysis.</li>
+            <li>BDD-style user stories, acceptance criteria and process models.</li>
+          </ul>
+          <div class="artifact-list"><span>BRD / FRS</span><span>BPMN As-Is / To-Be</span><span>User stories</span><span>SLA matrix</span><span>System context</span></div>
+        </article>
+        <article class="card span-6">
+          <div class="project-top"><div><span class="tag">Retail lending · BFSI</span><h3>Northstar — Retail Loan Origination</h3></div><span class="status">Self-directed concept</span></div>
+          <p class="muted">A conceptual loan origination workflow exploring application intake, eligibility checks, credit review, approval routing and decision communication.</p>
+          <ul class="clean">
+            <li>Mapped applicant and internal-user journeys across the loan lifecycle.</li>
+            <li>Structured business rules, decision tables, role permissions and state transitions.</li>
+            <li>Defined traceability and UAT coverage for key business scenarios.</li>
+          </ul>
+          <div class="artifact-list"><span>BRD / PRD / SRS</span><span>14+ proposed rules</span><span>Decision tables</span><span>RBAC</span><span>RTM / UAT</span></div>
+        </article>
+        <article class="card span-6">
+          <div class="project-top"><div><span class="tag">Insurance · BFSI</span><h3>InsureFlow — Motor Claims Workflow</h3></div><span class="status">Self-directed concept</span></div>
+          <p class="muted">A conceptual motor insurance claims process covering first notification of loss, assessment, review, approval and settlement exceptions.</p>
+          <ul class="clean">
+            <li>Modelled the claim journey, hand-offs and exception paths.</li>
+            <li>Explored decision tables, status transitions and integration touchpoints.</li>
+            <li>Outlined functional and non-functional requirements and UAT scenarios.</li>
+          </ul>
+          <div class="artifact-list"><span>Process models</span><span>Decision tables</span><span>Exception matrix</span><span>DFD / ERD</span><span>API specs</span></div>
+        </article>
+        <article class="card span-6">
+          <div class="project-top"><div><span class="tag">Healthcare · Operations</span><h3>MediTrack — Hospital Administration</h3></div><span class="status">Self-directed concept</span></div>
+          <p class="muted">A conceptual hospital administration and revenue-cycle case study exploring patient administration, appointment, billing and operational hand-offs.</p>
+          <ul class="clean">
+            <li>Identify user groups, process boundaries and operational pain points.</li>
+            <li>Model patient administration and billing workflows using synthetic examples.</li>
+            <li>Define requirements, controls and test scenarios without using real patient data.</li>
+          </ul>
+          <div class="artifact-list"><span>Stakeholder map</span><span>BRD / FRD</span><span>BPMN</span><span>Data model</span><span>UAT cases</span></div>
+        </article>
+        <article class="card span-12">
+          <div class="project-top"><div><span class="tag">AI product · EdTech</span><h3>LUMP — AI Career Upskilling Platform</h3></div><span class="status">In progress</span></div>
+          <p class="muted">An AI-enabled career upskilling platform concept with learner journeys, modular learning capabilities and AI-assisted workflows.</p>
+          <div class="grid">
+            <div class="span-6"><ul class="clean"><li>Product scope, user journeys and feature decomposition.</li><li>Functional requirements, data models and UI flow documentation.</li></ul></div>
+            <div class="span-6"><ul class="clean"><li>Exploration of Firebase authentication and OCI Generative AI integration.</li><li>Roadmap and system architecture documentation.</li></ul></div>
+          </div>
+          <div class="artifact-list"><span>PRD / SRS</span><span>Data model</span><span>UI flows</span><span>Roadmap</span><span>Architecture</span></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="capabilities" style="background:#fff;border-top:1px solid var(--line)">
+    <div class="wrap grid">
+      <div class="span-4 section-head">
+        <div class="eyebrow">04 / Capabilities</div>
+        <h2>How I contribute</h2>
+        <p class="sub">From understanding the problem to supporting validation and delivery.</p>
+      </div>
+      <div class="span-8 card">
+        <div class="skill-group"><strong>Requirements engineering</strong><span class="muted">Elicitation · BRD · FRD / FSD · SRS · User stories · Acceptance criteria · Business rules · RTM · MoSCoW</span></div>
+        <div class="skill-group"><strong>Process and systems analysis</strong><span class="muted">BPMN 2.0 · As-Is / To-Be · Gap analysis · Impact analysis · Use cases · DFD · State transitions · Decision tables</span></div>
+        <div class="skill-group"><strong>Agile delivery and validation</strong><span class="muted">Agile / Scrum · Backlog refinement · Stakeholder collaboration · UAT planning · Test scenarios · Change management</span></div>
+        <div class="skill-group"><strong>Technical and data foundation</strong><span class="muted">SQL · Relational data modelling · ERD · Data dictionary · REST API specifications · RBAC · Audit logging · .NET / C#</span></div>
+        <div class="skill-group"><strong>Tools</strong><span class="muted">Jira · Confluence (learning) · Lucidchart · Bizagi · MS Excel · Postman · Swagger</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap grid">
+      <div class="span-6 card">
+        <div class="eyebrow">05 / Education</div>
+        <h3>B.Tech — Electrical and Electronics Engineering</h3>
+        <p class="muted">Raghu Engineering College · 2018–2022</p>
+        <p><strong>Selected credentials</strong></p>
+        <ul class="clean">
+          <li>Oracle Cloud Infrastructure Generative AI Professional</li>
+          <li>Oracle Cloud Infrastructure AI Foundations Associate</li>
+          <li>HackerRank SQL (Intermediate)</li>
+          <li>Business Analysis Fundamentals — Alison (88%)</li>
+          <li>Training: Agile Business Analysis and Requirements Elicitation</li>
+        </ul>
+      </div>
+      <div class="span-6 callout">
+        <div class="eyebrow">Portfolio approach</div>
+        <h3>Evidence over claims</h3>
+        <p>Each case study should be supported by reviewable artifacts such as process models, requirement specifications, business-rule catalogues, traceability matrices and UAT scenarios.</p>
+        <p>Self-directed and hypothetical work is identified as such. Any sample data used in healthcare or other sensitive domains should be synthetic. No confidential employer or client information should be published.</p>
+        <p><a href="https://drive.google.com/drive/folders/1fkjN4FmWnVqE74Eo_oben2L-EGlC6P0O" target="_blank" rel="noreferrer">View BA artifacts repository ↗</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" style="padding-top:20px">
+    <div class="wrap">
+      <div class="card">
+        <div class="eyebrow">06 / Contact</div>
+        <h2>Let’s discuss business analysis opportunities.</h2>
+        <p class="sub">Open to Business Analyst, Technical Business Analyst, IT Business Analyst and Business Systems Analyst opportunities.</p>
+        <div class="actions" style="margin-top:20px">
+          <a class="btn primary" href="mailto:budumurusaibalaji13@gmail.com">budumurusaibalaji13@gmail.com</a>
+          <a class="btn secondary" href="tel:+916304084803">+91 63040 84803</a>
+          <a class="btn secondary" href="https://www.linkedin.com/in/sai-balaji-budumuru-433031213/" target="_blank" rel="noreferrer">LinkedIn</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>
+  <div class="wrap foot">
+    <span>© 2026 Sai Balaji Budumuru · Business Analyst Portfolio</span>
+    <span>Visakhapatnam, India</span>
+  </div>
+</footer>
+</body>
+</html>
